@@ -5,9 +5,11 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - 3000:3000
-      - 5432:5432
     depends_on:
       - pg
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@pg:5432/rcdb"
+      SERVICE_URL: "0.0.0.0:3001"
   pg:
     image: postgres:alpine
     environment:
