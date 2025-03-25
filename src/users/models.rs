@@ -1,6 +1,18 @@
 use std::time::{Duration, SystemTime};
 use serde::{Serialize, Deserialize};
-
+use sqlx;
+use sqlx::types::chrono::{DateTime, Utc};
+use uuid::Uuid;
+ 
+#[derive(sqlx::FromRow, Debug, Serialize)]
+pub struct User {
+    pub pk: i32,
+    pub id: Uuid,
+    pub create_time: DateTime<Utc>,
+    pub username: String,
+    pub password_hash: String,
+    pub is_super: bool
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct OurJwtPayload {

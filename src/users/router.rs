@@ -3,7 +3,7 @@ use axum::{
     Router,
 };
 
-use crate::users::auth::login;
+//use crate::users::auth::login;
 
 pub fn register_route() -> Router {
     async fn handler() -> &'static str {
@@ -12,5 +12,5 @@ pub fn register_route() -> Router {
 
     Router::new()
         .route("/register", get(handler))
-        .route("/login", post(login))
+        //.route("/login", post(login))
 }
