@@ -1,27 +1,26 @@
 -- Add migration script here
 CREATE TABLE car(  
     pk INT PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY UNIQUE,
-    id UUID UNIQUE DEFAULT gen_random_uuid(),
+    id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     create_time TIMESTAMPTZ NOT NULL DEFAULT now(),
-    name VARCHAR(255) NOT NULL UNIQUE,
-    description VARCHAR(255),
-    key_hash VARCHAR(255) NOT NULL,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    key_hash TEXT NOT NULL,
     creator_id UUID NOT NULL,
     ip inet
 );
 COMMENT ON TABLE car IS 'car database';
 COMMENT ON COLUMN car.name IS 'Car name, e.g. "Joe Peach car"';
 COMMENT ON COLUMN car.description IS 'Additional description';
-COMMENT ON COLUMN car.key_hash IS 'Hashed car "password" used to authenticate car requests';
 COMMENT ON COLUMN car.creator_id IS 'ID reference to "user" who created this car. User must be super';
 COMMENT ON COLUMN car.ip IS 'Car service IP used to connect to camera and controls';
 --
 CREATE TABLE "user"(  
     pk INT PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY UNIQUE,
-    id UUID UNIQUE DEFAULT gen_random_uuid(),
+    id UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     create_time TIMESTAMPTZ NOT NULL DEFAULT now(),
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
     is_super BOOLEAN DEFAULT false NOT NULL
 );
 COMMENT ON TABLE "user" IS 'user database';
