@@ -1,23 +1,21 @@
 use serde::{Serialize, Deserialize};
-use jsonwebtoken::{encode, decode, Header, Algorithm, Validation, EncodingKey, DecodingKey};
+use jsonwebtoken::{decode, Validation};
 use axum::{
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
     response::{IntoResponse, Response},
-    routing::{get, post},
-    Json, RequestPartsExt, Router,
+    Json, RequestPartsExt,
 };
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
 use serde_json::json;
-use chrono::{DateTime, Utc, Duration};
+use chrono::Utc;
 use uuid::Uuid;
 use crate::users::models::User;
 use crate::cars::models::Car;
-use crate::app_state::{KEYS, EXPIRING};
-
+use crate::users::auth::vars::{KEYS, EXPIRING};
 
 
 #[derive(Debug)]
@@ -26,6 +24,14 @@ pub enum AuthError {
     MissingCredentials,
     TokenCreation,
     InvalidToken,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum TokenType {
+    #[serde(rename = "Car")]
+    Car,
+    #[serde(rename = "User")]
+    User
 }
 
 impl IntoResponse for AuthError {
@@ -43,41 +49,46 @@ impl IntoResponse for AuthError {
     }
 }
 
-#[derive(Debug, Serialize)]
-pub struct JWT {
-    pub token: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum TokenType {
-    #[serde(rename = "Car")]
-    Car,
-    #[serde(rename = "User")]
-    User
-}
-
-/// Our claims struct, it needs to derive `Serialize` and/or `Deserialize`
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-    sub: Uuid,
-    token_type: TokenType,
-    username: String,
-    exp: DateTime<Utc>,
-    is_super: Option<bool>,
-    iat: DateTime<Utc>
+    pub sub: Uuid,
+    pub token_type: TokenType,
+    pub username: String,
+    pub exp: i64,
+    pub is_super: Option<bool>,
+    pub iat: i64
 }
 
 impl Claims {
-    fn new<T>(args: T) -> Claims
+    pub fn new<T>(args: T) -> Claims
         where T: Into<Claims>
     {
         args.into()
     }
 }
 
+impl<S> FromRequestParts<S> for Claims
+where
+    S: Send + Sync,
+{
+    type Rejection = AuthError;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        let TypedHeader(Authorization(bearer)) = parts
+            .extract::<TypedHeader<Authorization<Bearer>>>()
+            .await
+            .map_err(|_| AuthError::InvalidToken)?;
+
+        let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
+            .map_err(|_| AuthError::InvalidToken)?;
+
+        Ok(token_data.claims)
+    }
+}
+
 impl From<&User> for Claims {
     fn from(user: &User) -> Claims {
-        let time = Utc::now();
+        let time = chrono::Utc::now().timestamp();
         Claims {
             token_type: TokenType::User,
             sub: user.id,
@@ -91,7 +102,7 @@ impl From<&User> for Claims {
 
 impl From<&Car> for Claims {
     fn from(car: &Car) -> Claims {
-        let time = Utc::now();
+        let time = Utc::now().timestamp();
         Claims {
             token_type: TokenType::Car,
             sub: car.id,
@@ -103,31 +114,23 @@ impl From<&Car> for Claims {
     }
 }
 
-impl<S> FromRequestParts<S> for Claims
-where
-    S: Send + Sync,
-{
-    type Rejection = AuthError;
+#[derive(Debug, Serialize)]
+pub struct AuthBody {
+    access_token: String,
+    token_type: String,
+}
 
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        // Extract the token from the authorization header
-        let TypedHeader(Authorization(bearer)) = parts
-            .extract::<TypedHeader<Authorization<Bearer>>>()
-            .await
-            .map_err(|_| AuthError::InvalidToken)?;
-        // Decode the user data
-        let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
-            .map_err(|_| AuthError::InvalidToken)?;
-
-        Ok(token_data.claims)
+impl AuthBody {
+    pub fn new(access_token: String) -> Self {
+        Self {
+            access_token,
+            token_type: "Bearer".to_string(),
+        }
     }
 }
 
-
-pub fn create_token(user: &User) -> String {
-    let claims = Claims::new(user);
-
-    let token = encode(&Header::default(), &claims, &KEYS.encoding).unwrap();
-
-    return token;
+#[derive(Debug, Deserialize)]
+pub struct AuthPayload {
+    pub username: String,
+    pub password: String,
 }

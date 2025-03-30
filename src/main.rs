@@ -2,12 +2,9 @@ pub mod app_state;
 pub mod cars;
 pub mod users;
 
-use crate::cars::models::{Car, CarCreate};
-use crate::users::passwords::hash_password;
 use dotenv::dotenv;
 use std::env;
-use uuid::Uuid;
-use axum::{response::{Html, Json}, routing::{get, post}, Router, extract::State, http::StatusCode, response::IntoResponse};
+use axum::Router;
 
 #[tokio::main]
 async fn main() {

@@ -5,6 +5,7 @@ use argon2::{
     },
     Argon2
 };
+use anyhow::Result;
 
 pub async fn hash_password(password: String) -> Result<String, argon2::password_hash::Error> {
     Ok(tokio::task::spawn_blocking(move || -> Result<String, argon2::password_hash::Error> {

@@ -5,11 +5,18 @@ use uuid::Uuid;
  
 #[derive(sqlx::FromRow, Debug, Serialize)]
 pub struct User {
+    #[serde(skip_serializing)]
     pub pk: i32,
+
     pub id: Uuid,
+
+    #[serde(with = "time::serde::rfc3339")]
     pub create_time: OffsetDateTime,
     pub username: String,
+
+    #[serde(skip_serializing)]
     pub password_hash: String,
+
     pub is_super: bool
 }
 
@@ -17,7 +24,7 @@ pub struct User {
 pub struct UserCreate {
     pub username: String,
     pub password: String,
-    pub is_super: bool
+    pub is_super: Option<bool>
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -31,10 +38,4 @@ pub struct UserUpdate {
     pub username: Option<String>,
     pub password: Option<String>,
     pub is_super: Option<bool>
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct UserLogin {
-    pub username: String,
-    pub password: String,
 }

@@ -2,8 +2,13 @@
 
 ## User endpoints
 
+### GET /user/check
+- Description: Проверить токен
+- Response: CODE: 200
+  
 ### GET /user
 - Description: Получить всех юзеров
+- Requirements: Must be super
 - Response:
   ```json
   [
@@ -28,10 +33,12 @@
   ```
 - Response:
   ```json
-  {"id": "uuid-uuid-uuid"}
+  {
+    "id": "uuid-uuid-uuid"
+  }
   ```
 
-### POST /login
+### POST /user/jwt
 - Description: Получить токен
 - Body:
   ```json
@@ -43,8 +50,8 @@
 - Response:
   ```json
   {
-    "token": "sigma.balls.abacaba",
-    "type": "Bearer"
+    "access_token": "sigma.balls.abacaba",
+    "token_type": "Bearer"
   }
   ```
 
@@ -58,16 +65,17 @@
     {
       "id": "naenf-1d1241s241-wsda",
       "create_time": "2025-01-12",
+      "last_seen": "2025-01-12",
       "name": "DaBaby Car",
       "description": "aoua",
-      "image_url": "https://example.dina",
-      "ip": "127.0.0.1"
+      "image_url": "https://example.dina"
     }
   ]
   ```
 
 ### POST /car
 - Description: Создать машинку
+- Requirements: Must be super
 - Body:
   ```json
   {
