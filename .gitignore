@@ -1,4 +1,4 @@
 target/
 .env
-dbdata/
 .DS_Store
+.local/

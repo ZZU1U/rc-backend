@@ -17,7 +17,8 @@ pub struct User {
     #[serde(skip_serializing)]
     pub password_hash: String,
 
-    pub is_super: bool
+    pub is_super: bool,
+    pub is_verified: bool
 }
 
 #[derive(Debug, serde::Deserialize)]
