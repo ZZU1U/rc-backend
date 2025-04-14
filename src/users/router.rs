@@ -1,44 +1,55 @@
 use axum::{
     response::Json,
-    routing::{get, post}, 
+    routing::{get, post, put, delete}, 
     Router, 
     extract::State, 
     http::StatusCode, 
 };
-use uuid::Uuid;
-use crate::users::models::{User, UserCreate};
-use crate::users::passwords::{hash_password, check_password};
 use crate::app_state::AppState;
-use crate::users::auth::{
-    models::{Claims, AuthError, AuthBody, AuthPayload}, 
-    utils::create_token
+use super::models::{User, UserCreate, UserUpdate, UserDelete, UserCreateResponse};
+use super::passwords::{hash_password, check_password};
+use super::auth::{
+    models::{Claims, AuthError, AuthBody, AuthPayload, TokenType}, 
+    utils::generate_token
 };
 
 pub fn user_route() -> Router<AppState> {
     Router::new()
-        .route("/", post(register))
-        .route("/", get(get_all))
-        .route("/jwt/", post(login))
+        .route("/", post(create_user))
+        .route("/", put(update_info))
+        .route("/", get(get_users))
+        .route("/", delete(delete_user))
+        .route("/jwt", post(create_token))
         .route("/check", get(protected))
 }
 
-async fn register(State(state): State<AppState>, user: Json<UserCreate>) -> Result<(StatusCode, Json<Uuid>), StatusCode> {
-    let password_hash = hash_password(user.password.clone()).await.unwrap();
+async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> Result<(StatusCode, Json<UserCreateResponse>), StatusCode> {
+    let password_hash = hash_password(data.password.clone()).await.unwrap();
 
     let result = sqlx::query!(
         r#"
-        INSERT INTO "user" (username, is_super, password_hash)
-        VALUES ($1, $2, $3)
-        RETURNING id
+        INSERT INTO "user" (username, is_super, is_verified, password_hash, email)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, is_super
         "#,
-        user.username, user.is_super.unwrap_or(false), password_hash
+        data.username, data.is_super.unwrap_or(false), 
+        data.is_verified.unwrap_or(false), password_hash, data.email
     )  
-        .fetch_one(&state.pool).await.unwrap();
+        .fetch_one(&state.pool).await;
 
-    return Ok((StatusCode::OK, Json(result.id)));
+    let user;
+    match result {
+        Ok(res) => user = res,
+        Err(_) => return Err(StatusCode::CONFLICT)
+    };
+
+    Ok((
+        StatusCode::OK, 
+        Json(UserCreateResponse {id: user.id, is_super: user.is_super})
+    ))
 }
 
-async fn login(State(state): State<AppState>, Json(payload): Json<AuthPayload>) -> Result<(StatusCode, Json<AuthBody>), StatusCode> {
+async fn create_token(State(state): State<AppState>, Json(payload): Json<AuthPayload>) -> Result<(StatusCode, Json<AuthBody>), StatusCode> {
     let result = sqlx::query_as!(
         User,
         r#"
@@ -47,11 +58,17 @@ async fn login(State(state): State<AppState>, Json(payload): Json<AuthPayload>) 
         "#,
         payload.username
     )  
-        .fetch_one(&state.pool).await.unwrap();
+        .fetch_one(&state.pool).await;
 
-    match check_password(result.password_hash.clone(), payload.password.clone()).await.unwrap() {
+    let user;
+    match result {
+        Ok(res) => user = res,
+        Err(_) => return Err(StatusCode::UNAUTHORIZED)
+    }
+
+    match check_password(user.password_hash.clone(), payload.password.clone()).await.unwrap() {
         true => {
-            let token = create_token(&result)
+            let token = generate_token(&user)
                 .await.unwrap();
             Ok((StatusCode::OK, Json(AuthBody::new(token))))
         },
@@ -59,7 +76,7 @@ async fn login(State(state): State<AppState>, Json(payload): Json<AuthPayload>) 
     }
 }
 
-async fn get_all(claims: Claims, State(state): State<AppState>) -> Result<(StatusCode, Json<Vec<User>>), StatusCode> {
+async fn get_users(claims: Claims, State(state): State<AppState>) -> Result<(StatusCode, Json<Vec<User>>), StatusCode> {
     if !claims.is_super.unwrap_or(false) {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -72,9 +89,64 @@ async fn get_all(claims: Claims, State(state): State<AppState>) -> Result<(Statu
     )  
         .fetch_all(&state.pool).await.unwrap();
 
-    return Ok((StatusCode::OK, Json(result)))
+    Ok((StatusCode::OK, Json(result)))
 }
 
-async fn protected(_: Claims) -> Result<StatusCode, AuthError> {
-    Ok(StatusCode::OK)
+async fn update_info(claims: Claims, State(state): State<AppState>, Json(mut data): Json<UserUpdate>) -> Result<(StatusCode, Json<User>), StatusCode> {
+    data.id = Some(data.id.unwrap_or(claims.sub));
+
+    if (!claims.is_super.unwrap_or(false)) && (claims.sub != data.id.unwrap()) || matches!(claims.token_type, TokenType::Car) {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    let result = sqlx::query_as!(
+        User,
+        r#"
+        UPDATE "user"
+        SET username = COALESCE($1, username), email = COALESCE($2, email), is_super = COALESCE($3, is_super)
+        WHERE id = $4
+        RETURNING *
+        "#,
+        data.username, data.email, data.is_super, data.id
+    )
+        .fetch_one(&state.pool).await;
+
+    let user;
+    match result {
+        Ok(res) => user = res,
+        Err(_) => return Err(StatusCode::FORBIDDEN)
+    }
+
+    Ok((StatusCode::OK, Json(user)))
+}
+
+async fn delete_user(claims: Claims, State(state): State<AppState>, Json(mut data): Json<UserDelete>) -> Result<(StatusCode, Json<User>), StatusCode> {
+    data.id = Some(data.id.unwrap_or(claims.sub));
+
+    if (!claims.is_super.unwrap_or(false)) && (claims.sub != data.id.unwrap()) || (matches!(claims.token_type, TokenType::Car)) {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    let result = sqlx::query_as!(
+        User,
+        r#"
+        DELETE FROM "user"
+        WHERE id = $1
+        RETURNING *
+        "#,
+        data.id.unwrap()
+    )
+        .fetch_one(&state.pool).await;
+
+    let user;
+    match result {
+        Ok(res) => user = res,
+        Err(_) => return Err(StatusCode::FORBIDDEN)
+    }
+
+    return Ok((StatusCode::OK, Json(user)))
+}
+
+async fn protected(claims: Claims) -> Result<(StatusCode, Json<Claims>), AuthError> { 
+    Ok((StatusCode::OK, Json(claims)))
 }

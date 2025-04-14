@@ -1,6 +1,6 @@
 use axum::{
-    routing::{get, post, MethodRouter},
-    response::{Html, Json}, 
+    routing::{get, post},
+    response::Json, 
     Router,
     extract::State, 
     http::StatusCode, 

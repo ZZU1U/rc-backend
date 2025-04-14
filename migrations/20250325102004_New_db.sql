@@ -20,12 +20,14 @@ CREATE TABLE "user"(
     id UUID NOT NULL DEFAULT gen_random_uuid(),
     create_time TIMESTAMPTZ NOT NULL DEFAULT now(),
     username TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     is_super BOOLEAN DEFAULT false NOT NULL,
     is_verified BOOLEAN DEFAULT false NOT NULL
 );
 COMMENT ON TABLE "user" IS 'user database';
 COMMENT ON COLUMN "user".username IS 'Username shown to others and used to login';
+COMMENT ON COLUMN "user".email IS 'Email is used to send message when account gets verified or declined';
 COMMENT ON COLUMN "user".password_hash IS 'Hashed user password';
 COMMENT ON COLUMN "user".is_super IS 'If user has super rights';
 COMMENT ON COLUMN "user".is_verified IS 'Is this a new request for account or real account';

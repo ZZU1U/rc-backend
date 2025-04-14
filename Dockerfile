@@ -1,8 +1,8 @@
 FROM rust:slim AS build
 
 # create a new empty shell project
-RUN USER=root cargo new --bin holodeck
-WORKDIR /holodeck
+RUN USER=root cargo new --bin backend
+WORKDIR /backend
 
 # copy over your manifests
 COPY ./Cargo.lock ./Cargo.lock
@@ -23,7 +23,7 @@ RUN cargo build --release
 FROM debian:12-slim
 
 # copy the build artifact from the build stage
-COPY --from=build /holodeck/target/release/backend .
+COPY --from=build /backend/target/release/backend .
 
 # set the startup command to run your binary
 ENTRYPOINT ["./backend"]

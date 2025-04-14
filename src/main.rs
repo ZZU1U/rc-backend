@@ -2,7 +2,7 @@ pub mod app_state;
 pub mod cars;
 pub mod users;
 
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use std::env;
 use axum::Router;
 
@@ -13,8 +13,8 @@ async fn main() {
 
     // build our application with a route
     let app = Router::new()
-        .nest("/user", users::router::user_route())
-        .nest("/car", cars::router::car_route())
+        .nest("/user/", users::router::user_route())
+        .nest("/car/", cars::router::car_route())
         .with_state(shared_state);
 
     // run it

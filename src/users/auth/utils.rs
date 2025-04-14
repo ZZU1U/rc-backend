@@ -1,9 +1,9 @@
 use jsonwebtoken::{encode, Header};
 use anyhow::Result;
 use crate::users::models::User;
-use crate::users::auth::{vars::KEYS, models::{Claims, AuthError}};
+use crate::users::auth::{vars::KEYS, models::Claims};
 
-pub async fn create_token(user: &User) -> Result<String> {
+pub async fn generate_token(user: &User) -> Result<String> {
     let claims = Claims::new(user);
 
     Ok(tokio::task::spawn_blocking(move || -> Result<String> {
