@@ -5,17 +5,24 @@ pub mod users;
 use dotenvy::dotenv;
 use std::env;
 use axum::Router;
+use http::Method;
+use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
     let shared_state = app_state::AppState::new().await.unwrap();
 
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_origin(Any);
+
     // build our application with a route
     let app = Router::new()
         .nest("/user/", users::router::user_route())
         .nest("/car/", cars::router::car_route())
-        .with_state(shared_state);
+        .with_state(shared_state)
+        .layer(cors);
 
     // run it
     let server_url = env::var("SERVICE_URL").expect("Service url is not specified");

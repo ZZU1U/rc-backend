@@ -1,0 +1,340 @@
+openapi: '3.0.3'
+info:
+  title: RC-Backend
+  version: '1.0'
+servers:
+  - url: http://localhost:3001
+  - url: https://http://gl.anohin.fvds.ru:3001
+# security:
+#   - Bearer: []
+tags:
+  - name: User
+    description: Auth and admin actions
+  - name: Car
+    description: Car actions
+paths:
+  /user/:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - User
+      summary: Get a list of all users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/User'
+    put:
+      tags:
+        - User
+      summary: Update user info
+      requestBody:
+        description: Updated info. If id is not specified the one from jwt will be used. Also note that not super user can't update is_verified and is_super fields or other user's data.
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - User
+      summary: Create user
+      requestBody:
+        description: User info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      requestBody:
+        description: User info, BE CAREFUL, if id is null, the one from jwt will be used.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDelete'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /user/jwt/:
+    post:
+      tags:
+        - User
+      summary: Get a JWT for user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Bearer Token для дальнейшей аутентификации
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+  /car/:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Car
+      summary: Get a list of all cars
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/User'
+    put:
+      tags:
+        - Car
+      summary: Update car info
+      requestBody:
+        description: Updated info. If id is not specified the one from jwt will be used. Also note that not super user can't update is_verified and is_super fields or other user's data.
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - Car
+      summary: Create car
+      requestBody:
+        description: User info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - Car
+      summary: Delete car
+      requestBody:
+        description: User info, BE CAREFUL, if id is null, the one from jwt will be used.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDelete'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /car/jwt/:
+    post:
+      tags:
+        - Car
+      summary: Get a JWT for car
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Bearer Token для дальнейшей аутентификации
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+
+components:
+  schemas:
+    User:
+      type: object
+      xml:
+        name: user
+      properties:
+        id: 
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        is_super:
+          type: boolean
+        is_verified:
+          type: boolean
+    UserAuth:
+      type: object
+      xml:
+        name: user_creds
+      properties:
+        username: 
+          type: string
+        email:
+          type: string
+          nullable: true
+        password:
+          type: string
+    UserRegister:
+      type: object
+      xml:
+        name: user_register
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        is_super:
+          type: boolean
+          nullable: true
+        is_verified:
+          type: boolean
+          nullable: true
+    UserUpdate:
+      type: object
+      xml:
+        name: user_update
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        username:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        is_super:
+          type: boolean
+          nullable: true
+        is_verified:
+          type: boolean
+          nullable: true
+    UserDelete:
+      type: object
+      xml:
+        name: user_delete
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+    
+    Car:
+      type: object
+      xml:
+        name: car
+      properties:
+        id: 
+          type: string
+          format: uuid
+        last_seen:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          format: url
+          nullable: true
+    CarAuth:
+      type: object
+      xml:
+        name: user_creds
+      properties:
+        id: 
+          type: string
+          format: uuid
+        password:
+          type: string
+    CarCreate:
+      type: object
+      xml:
+        name: user_register
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        is_super:
+          type: boolean
+          nullable: true
+        is_verified:
+          type: boolean
+          nullable: true
+    CarUpdate:
+      type: object
+      xml:
+        name: car_update
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        is_super:
+          type: boolean
+          nullable: true
+        is_verified:
+          type: boolean
+          nullable: true
+    CarDelete:
+      type: object
+      xml:
+        name: car_delete
+      properties:
+        id:
+          type: string
+          format: uuid
+
+  securitySchemes:
+    jwt_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: $server
+          scopes:
+            "write:pets": modify pets in your account
+            "read:pets": read your pets

@@ -88,7 +88,7 @@ where
 
 impl From<&User> for Claims {
     fn from(user: &User) -> Claims {
-        let time = chrono::Utc::now().timestamp();
+        let time = Utc::now().timestamp();
         Claims {
             token_type: TokenType::User,
             sub: user.id,
@@ -130,7 +130,13 @@ impl AuthBody {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct AuthPayload {
+pub struct UserAuthPayload {
     pub username: String,
     pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CarAuthPayload {
+    pub id: Uuid,
+    pub key: String,
 }
