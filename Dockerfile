@@ -11,9 +11,18 @@ COPY ./Cargo.toml ./Cargo.toml
 # this build step will cache your dependencies
 RUN cargo build --release
 RUN rm src/*.rs
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./src ./src
+COPY ./.sqlx ./.sqlx
+COPY ./migrations ./migrations
 
 # copy your source tree
-COPY . .
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./src ./src
+COPY ./.sqlx ./.sqlx
+COPY ./migrations ./migrations
 
 # build for release
 RUN rm ./target/release/deps/backend*
