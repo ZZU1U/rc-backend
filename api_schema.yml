@@ -4,7 +4,7 @@ info:
   version: '1.0'
 servers:
   - url: http://localhost:3001
-  - url: https://http://gl.anohin.fvds.ru:3001
+  - url: http://gl.anohin.fvds.ru:3001
 # security:
 #   - Bearer: []
 tags:
@@ -15,11 +15,11 @@ tags:
 paths:
   /user/:
     get:
-      security:
-        - Bearer: []
       tags:
         - User
       summary: Get a list of all users
+      security:
+        - jwtBearerAuth: []
       responses:
         '200':
           description: OK
@@ -33,6 +33,8 @@ paths:
       tags:
         - User
       summary: Update user info
+      security:
+        - jwtBearerAuth: []
       requestBody:
         description: Updated info. If id is not specified the one from jwt will be used. Also note that not super user can't update is_verified and is_super fields or other user's data.
         content:
@@ -63,6 +65,8 @@ paths:
       tags:
         - User
       summary: Delete user
+      security:
+        - jwtBearerAuth: []
       requestBody:
         description: User info, BE CAREFUL, if id is null, the one from jwt will be used.
         content:
@@ -76,11 +80,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-  /user/jwt/:
+  /user/jwt:
     post:
       tags:
         - User
       summary: Get a JWT for user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAuth'
       responses:
         '200':
           description: OK
@@ -95,8 +104,6 @@ paths:
                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
   /car/:
     get:
-      security:
-        - Bearer: []
       tags:
         - Car
       summary: Get a list of all cars
@@ -108,54 +115,61 @@ paths:
               schema:
                 type: array
                 items: 
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Car'
     put:
       tags:
         - Car
       summary: Update car info
+      security:
+        - jwtBearerAuth: []
       requestBody:
-        description: Updated info. If id is not specified the one from jwt will be used. Also note that not super user can't update is_verified and is_super fields or other user's data.
         content:
           application/json:
             schema:
-              $ref: '#components/schemas/UserUpdate'
+              $ref: '#components/schemas/CarUpdate'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
     post:
       tags:
         - Car
       summary: Create car
+      security:
+        - jwtBearerAuth: []
       requestBody:
-        description: User info
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegister'
+              $ref: '#/components/schemas/CarCreate'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Car'
     delete:
       tags:
         - Car
       summary: Delete car
+      security:
+        - jwtBearerAuth: []
       requestBody:
-        description: User info, BE CAREFUL, if id is null, the one from jwt will be used.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDelete'
+              $ref: '#/components/schemas/CarDelete'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Car'
   /car/jwt/:
     post:
       tags:
@@ -175,6 +189,11 @@ paths:
                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 
 components:
+  securitySchemes:
+    jwtBearerAuth:  # Arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  # Optional, but indicates the token is a JWT
   schemas:
     User:
       type: object
@@ -184,8 +203,6 @@ components:
         id: 
           type: string
           format: uuid
-        username:
-          type: string
         email:
           type: string
           format: email
@@ -198,11 +215,8 @@ components:
       xml:
         name: user_creds
       properties:
-        username: 
-          type: string
         email:
           type: string
-          nullable: true
         password:
           type: string
     UserRegister:
@@ -210,8 +224,6 @@ components:
       xml:
         name: user_register
       properties:
-        username:
-          type: string
         email:
           type: string
         password:
@@ -230,9 +242,6 @@ components:
         id:
           type: string
           format: uuid
-          nullable: true
-        username:
-          type: string
           nullable: true
         email:
           type: string
@@ -281,25 +290,23 @@ components:
         id: 
           type: string
           format: uuid
-        password:
+        key:
           type: string
     CarCreate:
       type: object
       xml:
         name: user_register
       properties:
-        username:
+        name:
           type: string
-        email:
+        description:
           type: string
-        password:
-          type: string
-        is_super:
-          type: boolean
           nullable: true
-        is_verified:
-          type: boolean
+        image_url:
+          type: string
           nullable: true
+        key:
+          type: string
     CarUpdate:
       type: object
       xml:
@@ -308,17 +315,14 @@ components:
         id:
           type: string
           format: uuid
-        username:
+        name:
           type: string
           nullable: true
-        email:
+        description:
           type: string
           nullable: true
-        is_super:
-          type: boolean
-          nullable: true
-        is_verified:
-          type: boolean
+        image_url:
+          type: string
           nullable: true
     CarDelete:
       type: object
@@ -328,13 +332,3 @@ components:
         id:
           type: string
           format: uuid
-
-  securitySchemes:
-    jwt_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: $server
-          scopes:
-            "write:pets": modify pets in your account
-            "read:pets": read your pets

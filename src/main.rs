@@ -19,8 +19,10 @@ async fn main() {
 
     // build our application with a route
     let app = Router::new()
-        .nest("/user/", users::router::user_route())
         .nest("/car/", cars::router::car_route())
+        .with_state(shared_state)
+        .layer(cors)
+        .nest("/user/", users::router::user_route())
         .with_state(shared_state)
         .layer(cors);
 
