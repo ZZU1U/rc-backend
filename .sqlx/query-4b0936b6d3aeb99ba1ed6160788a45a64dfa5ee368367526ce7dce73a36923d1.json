@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE \"user\"\n        SET username = COALESCE($1, username), email = COALESCE($2, email), is_super = COALESCE($3, is_super), is_verified = COALESCE($4, is_verified)\n        WHERE id = $5\n        RETURNING *\n        ",
+  "query": "\n        SELECT * FROM \"user\"\n        WHERE \"user\".email = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -10,37 +10,28 @@
       },
       {
         "ordinal": 1,
-        "name": "username",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 2,
         "name": "email",
         "type_info": "Text"
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "password_hash",
         "type_info": "Text"
       },
       {
-        "ordinal": 4,
+        "ordinal": 3,
         "name": "is_super",
         "type_info": "Bool"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "is_verified",
         "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Text",
-        "Bool",
-        "Bool",
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -48,9 +39,8 @@
       false,
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "fe4e411a040de53d1b8c496394de5ebcd252432caada4555008ac6bcda1f0b87"
+  "hash": "4b0936b6d3aeb99ba1ed6160788a45a64dfa5ee368367526ce7dce73a36923d1"
 }
