@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM \"user\"\n        WHERE \"user\".username = $1\n        ",
+  "query": "\n        DELETE FROM car\n        WHERE id = $1\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -10,43 +10,43 @@
       },
       {
         "ordinal": 1,
-        "name": "username",
-        "type_info": "Text"
+        "name": "last_seen",
+        "type_info": "Timestamptz"
       },
       {
         "ordinal": 2,
-        "name": "email",
+        "name": "name",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
-        "name": "password_hash",
+        "name": "image_url",
         "type_info": "Text"
       },
       {
         "ordinal": 4,
-        "name": "is_super",
-        "type_info": "Bool"
+        "name": "description",
+        "type_info": "Text"
       },
       {
         "ordinal": 5,
-        "name": "is_verified",
-        "type_info": "Bool"
+        "name": "key_hash",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
       false,
       false,
       false,
-      false,
-      false,
+      true,
+      true,
       false
     ]
   },
-  "hash": "6e827b924765ea4edb77527552471e14c9971df549666246fbdfdd2ffab44a92"
+  "hash": "ccf2772512ae6d0e1fbb89392a38e51dd4720a875261171228bd8b94c6a66096"
 }

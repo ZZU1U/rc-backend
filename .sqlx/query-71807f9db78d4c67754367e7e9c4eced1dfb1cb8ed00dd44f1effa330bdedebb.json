@@ -5,41 +5,31 @@
     "columns": [
       {
         "ordinal": 0,
-        "name": "pk",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 1,
         "name": "id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 2,
-        "name": "create_time",
-        "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 3,
+        "ordinal": 1,
         "name": "username",
         "type_info": "Text"
       },
       {
-        "ordinal": 4,
+        "ordinal": 2,
         "name": "email",
         "type_info": "Text"
       },
       {
-        "ordinal": 5,
+        "ordinal": 3,
         "name": "password_hash",
         "type_info": "Text"
       },
       {
-        "ordinal": 6,
+        "ordinal": 4,
         "name": "is_super",
         "type_info": "Bool"
       },
       {
-        "ordinal": 7,
+        "ordinal": 5,
         "name": "is_verified",
         "type_info": "Bool"
       }
@@ -48,8 +38,6 @@
       "Left": []
     },
     "nullable": [
-      false,
-      false,
       false,
       false,
       false,

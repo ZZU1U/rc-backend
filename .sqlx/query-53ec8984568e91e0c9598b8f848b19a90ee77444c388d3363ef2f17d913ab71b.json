@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM \"user\"\n        WHERE \"user\".username = $1\n        ",
+  "query": "\n        DELETE FROM \"user\"\n        WHERE id = $1\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -36,7 +36,7 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -48,5 +48,5 @@
       false
     ]
   },
-  "hash": "6e827b924765ea4edb77527552471e14c9971df549666246fbdfdd2ffab44a92"
+  "hash": "53ec8984568e91e0c9598b8f848b19a90ee77444c388d3363ef2f17d913ab71b"
 }

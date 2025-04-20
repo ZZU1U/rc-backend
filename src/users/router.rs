@@ -30,12 +30,11 @@ async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> R
     let result = sqlx::query_as!(
         User,
         r#"
-        INSERT INTO "user" (id, username, is_super, is_verified, password_hash, email)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO "user" (id, is_super, is_verified, password_hash, email)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *
         "#,
-        Uuid::now_v7(),
-        data.username, data.is_super.unwrap_or(false), 
+        Uuid::now_v7(), data.is_super.unwrap_or(false), 
         data.is_verified.unwrap_or(false), password_hash, data.email
     )  
         .fetch_one(&state.pool).await;
@@ -45,6 +44,8 @@ async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> R
         Ok(res) => user = res,
         Err(_) => return Err(StatusCode::CONFLICT)
     };
+
+    println!("{:?}", user);
 
     Ok((
         StatusCode::OK, 
@@ -57,9 +58,9 @@ async fn create_token(State(state): State<AppState>, Json(payload): Json<UserAut
         User,
         r#"
         SELECT * FROM "user"
-        WHERE "user".username = $1
+        WHERE "user".email = $1
         "#,
-        payload.username
+        payload.email
     )  
         .fetch_one(&state.pool).await;
 
@@ -107,11 +108,11 @@ async fn update_info(claims: Claims, State(state): State<AppState>, mut data: Js
         User,
         r#"
         UPDATE "user"
-        SET username = COALESCE($1, username), email = COALESCE($2, email), is_super = COALESCE($3, is_super), is_verified = COALESCE($4, is_verified)
-        WHERE id = $5
+        SET email = COALESCE($1, email), is_super = COALESCE($2, is_super), is_verified = COALESCE($3, is_verified)
+        WHERE id = $4
         RETURNING *
         "#,
-        data.username, data.email, data.is_super, data.is_verified, data.id
+        data.email, data.is_super, data.is_verified, data.id
     )
         .fetch_one(&state.pool).await;
 

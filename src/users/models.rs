@@ -6,7 +6,6 @@ use uuid::Uuid;
 pub struct User {
     pub id: Uuid,
 
-    pub username: String,
     pub email: String,
 
     #[serde(skip_serializing)]
@@ -18,7 +17,6 @@ pub struct User {
 
 #[derive(Debug, serde::Deserialize)]
 pub struct UserCreate {
-    pub username: String,
     pub email: String,
     pub password: String,
     pub is_super: Option<bool>,
@@ -33,7 +31,6 @@ pub struct UserDelete {
 #[derive(Debug, serde::Deserialize)]
 pub struct UserUpdate {
     pub id: Option<Uuid>,
-    pub username: Option<String>,
     pub email: Option<String>,
     //pub password: Option<String>,
     pub is_super: Option<bool>,

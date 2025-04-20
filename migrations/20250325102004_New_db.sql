@@ -18,14 +18,12 @@ COMMENT ON COLUMN car.description IS 'Additional description';
 CREATE TABLE "user"(  
     -- pk INT PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY UNIQUE,
     id UUID NOT NULL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     is_super BOOLEAN DEFAULT false NOT NULL,
     is_verified BOOLEAN DEFAULT false NOT NULL
 );
 COMMENT ON TABLE "user" IS 'user database';
-COMMENT ON COLUMN "user".username IS 'Username shown to others and used to login';
 COMMENT ON COLUMN "user".email IS 'Email is used to send message when account gets verified or declined';
 COMMENT ON COLUMN "user".password_hash IS 'Hashed user password';
 COMMENT ON COLUMN "user".is_super IS 'If user has super rights';

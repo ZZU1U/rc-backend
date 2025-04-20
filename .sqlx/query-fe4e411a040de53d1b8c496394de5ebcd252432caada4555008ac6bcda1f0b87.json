@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM \"user\"\n        WHERE \"user\".username = $1\n        ",
+  "query": "\n        UPDATE \"user\"\n        SET username = COALESCE($1, username), email = COALESCE($2, email), is_super = COALESCE($3, is_super), is_verified = COALESCE($4, is_verified)\n        WHERE id = $5\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -36,7 +36,11 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Text",
+        "Text",
+        "Bool",
+        "Bool",
+        "Uuid"
       ]
     },
     "nullable": [
@@ -48,5 +52,5 @@
       false
     ]
   },
-  "hash": "6e827b924765ea4edb77527552471e14c9971df549666246fbdfdd2ffab44a92"
+  "hash": "fe4e411a040de53d1b8c496394de5ebcd252432caada4555008ac6bcda1f0b87"
 }

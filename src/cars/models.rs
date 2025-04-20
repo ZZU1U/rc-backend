@@ -13,6 +13,7 @@ pub struct Car {
     pub name: String,
     pub description: Option<String>,
     pub image_url: Option<String>,
+    //pub is_on: bool, // todo
 
     #[serde(skip_serializing)]
     pub key_hash: String,

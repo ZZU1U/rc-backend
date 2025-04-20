@@ -53,7 +53,7 @@ impl IntoResponse for AuthError {
 pub struct Claims {
     pub sub: Uuid,
     pub token_type: TokenType,
-    pub username: String,
+    pub email: Option<String>,
     pub exp: i64,
     pub is_super: Option<bool>,
     pub iat: i64
@@ -92,7 +92,7 @@ impl From<&User> for Claims {
         Claims {
             token_type: TokenType::User,
             sub: user.id,
-            username: user.username.clone(),
+            email: Some(user.email.clone()),
             exp: time + EXPIRING,
             iat: time,
             is_super: Some(user.is_super)
@@ -106,8 +106,8 @@ impl From<&Car> for Claims {
         Claims {
             token_type: TokenType::Car,
             sub: car.id,
-            username: car.name.clone(),
             exp: time + EXPIRING,
+            email: Option::None,
             iat: time,
             is_super: Option::None
         }
@@ -131,7 +131,7 @@ impl AuthBody {
 
 #[derive(Debug, Deserialize)]
 pub struct UserAuthPayload {
-    pub username: String,
+    pub email: String,
     pub password: String,
 }
 
