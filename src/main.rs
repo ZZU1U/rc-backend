@@ -20,11 +20,9 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .nest("/car/", cars::router::car_route())
-        .with_state(shared_state)
-        .layer(cors)
         .nest("/user/", users::router::user_route())
-        .with_state(shared_state)
-        .layer(cors);
+        .layer(cors)
+        .with_state(shared_state);
 
     // run it
     let server_url = env::var("SERVICE_URL").expect("Service url is not specified");
