@@ -14,7 +14,7 @@ pub type ViewerMap = Arc<Mutex<
 #[derive(Clone)]
 pub struct AppState {
     pub pool: PgPool,
-    pub viewer_map: ViewerMap
+    //pub viewer_map: ViewerMap
 }
 
 impl AppState {
@@ -27,9 +27,9 @@ impl AppState {
             .await
             .with_context(|| format!("Error while connecting to {}", connection_string))?;
 
-        let viewer_map = ViewerMap::new(Mutex::new(HashMap::new()));
+        //let viewer_map = ViewerMap::new(Mutex::new(HashMap::new()));
 
-        Ok(AppState {pool, viewer_map })
+        Ok(AppState {pool})
     }
 }
 
