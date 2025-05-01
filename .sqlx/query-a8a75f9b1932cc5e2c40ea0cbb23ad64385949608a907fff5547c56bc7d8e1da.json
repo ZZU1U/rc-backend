@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO \"user\" (id, is_super, is_verified, password_hash, email)\n        VALUES ($1, $2, $3, $4, $5)\n        RETURNING *\n        ",
+  "query": "\n        INSERT INTO \"user\" (id, is_super, password_hash, email)\n        VALUES ($1, $2, $3, $4)\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -33,7 +33,6 @@
       "Left": [
         "Uuid",
         "Bool",
-        "Bool",
         "Text",
         "Text"
       ]
@@ -46,5 +45,5 @@
       false
     ]
   },
-  "hash": "3cb2577ac191d76f86ef267b2b19d4a60b93da1e4e24db592cd867df285149ec"
+  "hash": "a8a75f9b1932cc5e2c40ea0cbb23ad64385949608a907fff5547c56bc7d8e1da"
 }

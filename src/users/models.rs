@@ -20,7 +20,6 @@ pub struct UserCreate {
     pub email: String,
     pub password: String,
     pub is_super: Option<bool>,
-    pub is_verified: Option<bool>
 }
 
 #[derive(Debug, serde::Deserialize)]

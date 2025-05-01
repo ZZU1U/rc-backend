@@ -3,7 +3,7 @@ pub mod cars;
 pub mod users;
 
 use dotenvy::dotenv;
-use std::env;
+use std::{env, net::SocketAddr};
 use axum::Router;
 use http::Method;
 use tower_http::cors::{Any, CorsLayer};
@@ -18,10 +18,12 @@ async fn main() {
         .allow_origin(Any)
         .allow_headers(Any);
 
+    users::utils::check_default_admin(shared_state.clone()).await;
+
     // build our application with a route
     let app = Router::new()
-        .nest("/car/", cars::router::car_route())
-        .nest("/user/", users::router::user_route())
+        .nest("/car", cars::router::car_route())
+        .nest("/user", users::router::user_route())
         .layer(cors)
         .with_state(shared_state);
 
@@ -32,5 +34,8 @@ async fn main() {
         .unwrap();
 
     println!("Running on {}", server_url);
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(
+        listener, 
+        app.into_make_service_with_connect_info::<SocketAddr>()
+    ).await.unwrap();
 }

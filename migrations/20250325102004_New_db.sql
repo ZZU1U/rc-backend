@@ -7,6 +7,7 @@ CREATE TABLE car(
     id UUID NOT NULL PRIMARY KEY,
     last_seen TIMESTAMPTZ NOT NULL DEFAULT now(),
     name TEXT NOT NULL UNIQUE,
+	is_on BOOLEAN NOT NULL DEFAULT false,
     image_url TEXT,
     description TEXT,
     key_hash TEXT NOT NULL

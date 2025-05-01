@@ -4,7 +4,6 @@ use sqlx::types::time::OffsetDateTime;
 
 #[derive(sqlx::FromRow, Debug, serde::Serialize)]
 pub struct Car {
-    #[serde(skip_serializing)]
     pub id: Uuid,
 
     #[serde(with = "time::serde::rfc3339")]
@@ -13,7 +12,7 @@ pub struct Car {
     pub name: String,
     pub description: Option<String>,
     pub image_url: Option<String>,
-    //pub is_on: bool, // todo
+    pub is_on: bool,
 
     #[serde(skip_serializing)]
     pub key_hash: String,

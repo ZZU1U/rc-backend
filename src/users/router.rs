@@ -30,12 +30,12 @@ async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> R
     let result = sqlx::query_as!(
         User,
         r#"
-        INSERT INTO "user" (id, is_super, is_verified, password_hash, email)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO "user" (id, is_super, password_hash, email)
+        VALUES ($1, $2, $3, $4)
         RETURNING *
         "#,
         Uuid::now_v7(), data.is_super.unwrap_or(false), 
-        data.is_verified.unwrap_or(false), password_hash, data.email
+        password_hash, data.email
     )  
         .fetch_one(&state.pool).await;
 
@@ -45,8 +45,6 @@ async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> R
         Err(_) => return Err(StatusCode::CONFLICT)
     };
 
-    println!("{:?}", user);
-
     Ok((
         StatusCode::OK, 
         Json(user)
@@ -54,6 +52,8 @@ async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> R
 }
 
 async fn create_token(State(state): State<AppState>, Json(payload): Json<UserAuthPayload>) -> Result<(StatusCode, Json<AuthBody>), StatusCode> {
+    println!("{:?}", payload);
+
     let result = sqlx::query_as!(
         User,
         r#"
@@ -68,6 +68,10 @@ async fn create_token(State(state): State<AppState>, Json(payload): Json<UserAut
     match result {
         Ok(res) => user = res,
         Err(_) => return Err(StatusCode::UNAUTHORIZED)
+    }
+
+    if !user.is_verified {
+        return Err(StatusCode::UNAUTHORIZED);
     }
 
     match check_password(user.password_hash.clone(), payload.password.clone()).await.unwrap() {
