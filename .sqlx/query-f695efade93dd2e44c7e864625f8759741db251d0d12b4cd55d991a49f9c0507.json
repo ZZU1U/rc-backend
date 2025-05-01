@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO \"user\" (id, email, password_hash, is_verified, is_super)\n        VALUES ($1, $2, $3, true, true)\n        ON CONFLICT (email) DO NOTHING\n        RETURNING *\n        ",
+  "query": "\n        INSERT INTO \"user\" (id, email, password_hash, is_verified, is_super)\n        VALUES ($1, $2, $3, true, true)\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -44,5 +44,5 @@
       false
     ]
   },
-  "hash": "ca4d913b5a4f2785ebb35a6d8d884b2721dfcbe5fbd9050b6ef3e49a109605e7"
+  "hash": "f695efade93dd2e44c7e864625f8759741db251d0d12b4cd55d991a49f9c0507"
 }
