@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM \"user\"\n        ",
+  "query": "\n        SELECT * \n        FROM \"user\"\n        ORDER BY is_verified ASC\n        ",
   "describe": {
     "columns": [
       {
@@ -40,5 +40,5 @@
       false
     ]
   },
-  "hash": "71807f9db78d4c67754367e7e9c4eced1dfb1cb8ed00dd44f1effa330bdedebb"
+  "hash": "1c874a51f24290d57c75921b9db5d3c5bb8ea18fb9fd97a983828bf404192185"
 }
