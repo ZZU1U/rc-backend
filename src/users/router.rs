@@ -93,7 +93,9 @@ async fn get_users(claims: Claims, State(state): State<AppState>) -> Result<(Sta
     let result = sqlx::query_as!(
         User,
         r#"
-        SELECT * FROM "user"
+        SELECT * 
+        FROM "user"
+        ORDER BY is_verified ASC
         "#,
     )  
         .fetch_all(&state.pool).await.unwrap();

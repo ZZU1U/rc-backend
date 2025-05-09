@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode, 
 };
 use uuid::Uuid;
-use crate::{app_state::AppState, users::auth::models::AuthBody};
+use crate::{app_state::AppState, users::auth::models::{AuthBody, TokenType}};
 use crate::users::passwords::{hash_password, check_password};
 use crate::users::auth::{models::{Claims, CarAuthPayload}, utils::generate_token};
 use super::models::{Car, CarCreate, CarDelete, CarUpdate};
@@ -44,7 +44,9 @@ async fn create_car(claims: Claims, State(state): State<AppState>, car: Json<Car
 async fn get_cars(State(state): State<AppState>) -> Result<(StatusCode, Json<Vec<Car>>), StatusCode>  {
     let result = sqlx::query_as!(Car,
         r#"
-        SELECT * FROM car
+        SELECT * 
+        FROM car
+        ORDER BY is_on DESC
         "#,
     )
         .fetch_all(&state.pool).await.unwrap();
@@ -53,7 +55,7 @@ async fn get_cars(State(state): State<AppState>) -> Result<(StatusCode, Json<Vec
 }
 
 async fn update_car(claims: Claims, State(state): State<AppState>, data: Json<CarUpdate>) -> Result<(StatusCode, Json<Car>), StatusCode> {
-    if !claims.is_super.unwrap_or(false) {
+    if (!claims.is_super.unwrap_or(false)) && (!matches!(claims.token_type, TokenType::Service)) {
         return Err(StatusCode::FORBIDDEN);
     }
 

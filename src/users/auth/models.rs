@@ -31,7 +31,9 @@ pub enum TokenType {
     #[serde(rename = "Car")]
     Car,
     #[serde(rename = "User")]
-    User
+    User,
+    #[serde(rename = "Service")]
+    Service
 }
 
 impl IntoResponse for AuthError {
