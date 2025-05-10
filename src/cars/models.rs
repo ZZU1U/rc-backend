@@ -34,6 +34,7 @@ pub struct CarDelete {
 #[derive(Debug, serde::Deserialize)]
 pub struct CarUpdate {
     pub id: Uuid,
+    pub is_on: Option<bool>,
     pub name: Option<String>,
     pub description: Option<String>,
     pub image_url: Option<String>,

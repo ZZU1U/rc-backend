@@ -55,7 +55,7 @@ async fn get_cars(State(state): State<AppState>) -> Result<(StatusCode, Json<Vec
 }
 
 async fn update_car(claims: Claims, State(state): State<AppState>, data: Json<CarUpdate>) -> Result<(StatusCode, Json<Car>), StatusCode> {
-    if (!claims.is_super.unwrap_or(false)) && (!matches!(claims.token_type, TokenType::Service)) {
+    if !(claims.is_super.unwrap_or(false) || matches!(claims.token_type, TokenType::Service)) {
         return Err(StatusCode::FORBIDDEN);
     }
 
@@ -63,11 +63,11 @@ async fn update_car(claims: Claims, State(state): State<AppState>, data: Json<Ca
         Car,
         r#"
         UPDATE car
-        SET name = COALESCE($1, name), description = COALESCE($2, description), image_url = COALESCE($3, image_url)
-        WHERE id = $4
+        SET name = COALESCE($1, name), description = COALESCE($2, description), image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on)
+        WHERE id = $5
         RETURNING *
         "#,
-        data.name, data.description, data.image_url, data.id
+        data.name, data.description, data.image_url, data.is_on, data.id
     )
         .fetch_one(&state.pool).await;
 
