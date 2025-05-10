@@ -52,8 +52,6 @@ async fn create_user(State(state): State<AppState>, data: Json<UserCreate>) -> R
 }
 
 async fn create_token(State(state): State<AppState>, Json(payload): Json<UserAuthPayload>) -> Result<(StatusCode, Json<AuthBody>), StatusCode> {
-    println!("{:?}", payload);
-
     let result = sqlx::query_as!(
         User,
         r#"
