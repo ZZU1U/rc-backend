@@ -37,6 +37,11 @@
         "ordinal": 6,
         "name": "key_hash",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "power",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
@@ -49,7 +54,8 @@
       false,
       true,
       true,
-      false
+      false,
+      true
     ]
   },
   "hash": "8787b87ec0cfeea5b4148664fa07c0da8688eec6a06d565574ec1daa793d2ec9"

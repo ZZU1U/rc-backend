@@ -12,6 +12,7 @@ pub struct Car {
     pub name: String,
     pub description: Option<String>,
     pub image_url: Option<String>,
+    pub power: Option<i32>,
     pub is_on: bool,
 
     #[serde(skip_serializing)]
@@ -23,6 +24,7 @@ pub struct CarCreate {
     pub name: String,
     pub description: Option<String>,
     pub image_url: Option<String>,
+    pub power: Option<i32>,
     pub key: String,
 }
 
@@ -37,5 +39,6 @@ pub struct CarUpdate {
     pub is_on: Option<bool>,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub power: Option<i32>,
     pub image_url: Option<String>,
 }

@@ -30,11 +30,11 @@ async fn create_car(claims: Claims, State(state): State<AppState>, car: Json<Car
     let result = sqlx::query_as!(
         Car,
         r#"
-        INSERT INTO car (id, name, description, key_hash, image_url)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO car (id, name, description, key_hash, image_url, power)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
         "#,
-        Uuid::now_v7(), car.name, car.description, password_hash, car.image_url
+        Uuid::now_v7(), car.name, car.description, password_hash, car.image_url, car.power
     )  
         .fetch_one(&state.pool).await.unwrap();
 
@@ -63,11 +63,12 @@ async fn update_car(claims: Claims, State(state): State<AppState>, data: Json<Ca
         Car,
         r#"
         UPDATE car
-        SET name = COALESCE($1, name), description = COALESCE($2, description), image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on)
-        WHERE id = $5
+        SET name = COALESCE($1, name), description = COALESCE($2, description),
+        image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on), power = COALESCE($5, power)
+        WHERE id = $6
         RETURNING *
         "#,
-        data.name, data.description, data.image_url, data.is_on, data.id
+        data.name, data.description, data.image_url, data.is_on, data.power, data.id
     )
         .fetch_one(&state.pool).await;
 
