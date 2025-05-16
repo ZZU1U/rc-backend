@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE car\n        SET name = COALESCE($1, name), description = COALESCE($2, description),\n        image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on), power = COALESCE($5, power)\n        WHERE id = $6\n        RETURNING *\n        ",
+  "query": "\n        UPDATE car\n        SET name = COALESCE($1, name), description = COALESCE($2, description),\n        image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on),\n        power = COALESCE($5, power), last_seen = COALESCE($6, last_seen)\n        WHERE id = $7\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -51,6 +51,7 @@
         "Text",
         "Bool",
         "Int4",
+        "Timestamptz",
         "Uuid"
       ]
     },
@@ -65,5 +66,5 @@
       true
     ]
   },
-  "hash": "31b01ffff71a5ec64f8703a7a0de74c41bbbc0872f174c058aa180d43b011d72"
+  "hash": "29b24443840d58e374ac1bfc61ec619847db4ae2c8011974e7ff642d3f986c01"
 }
