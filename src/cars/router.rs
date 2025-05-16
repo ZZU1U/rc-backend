@@ -91,6 +91,12 @@ async fn update_car(
         return Err(StatusCode::FORBIDDEN);
     }
 
+    if data.power.is_some()
+        && (data.power.unwrap_or_default() > 100 || data.power.unwrap_or_default() <= 0)
+    {
+        return Err(StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
     let result = sqlx::query_as!(
         Car,
         r#"
@@ -112,12 +118,10 @@ async fn update_car(
     .fetch_one(&state.pool)
     .await;
 
-    let car = match result {
-        Ok(res) => res,
-        Err(_) => return Err(StatusCode::FORBIDDEN),
-    };
-
-    Ok((StatusCode::OK, Json(car)))
+    match result {
+        Ok(car) => Ok((StatusCode::OK, Json(car))),
+        Err(_) => Err(StatusCode::FORBIDDEN),
+    }
 }
 
 async fn delete_car(
