@@ -96,19 +96,26 @@ async fn update_car(
         r#"
         UPDATE car
         SET name = COALESCE($1, name), description = COALESCE($2, description),
-        image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on), power = COALESCE($5, power)
-        WHERE id = $6
+        image_url = COALESCE($3, image_url), is_on = COALESCE($4, is_on),
+        power = COALESCE($5, power), last_seen = COALESCE($6, last_seen)
+        WHERE id = $7
         RETURNING *
         "#,
-        data.name, data.description, data.image_url, data.is_on, data.power, data.id
+        data.name,
+        data.description,
+        data.image_url,
+        data.is_on,
+        data.power,
+        data.last_seen,
+        data.id
     )
-        .fetch_one(&state.pool).await;
+    .fetch_one(&state.pool)
+    .await;
 
-    let car;
-    match result {
-        Ok(res) => car = res,
+    let car = match result {
+        Ok(res) => res,
         Err(_) => return Err(StatusCode::FORBIDDEN),
-    }
+    };
 
     Ok((StatusCode::OK, Json(car)))
 }

@@ -1,6 +1,6 @@
 use sqlx;
-use uuid::Uuid;
 use sqlx::types::time::OffsetDateTime;
+use uuid::Uuid;
 
 #[derive(sqlx::FromRow, Debug, serde::Serialize)]
 pub struct Car {
@@ -30,7 +30,7 @@ pub struct CarCreate {
 
 #[derive(Debug, serde::Deserialize)]
 pub struct CarDelete {
-    pub id: Uuid
+    pub id: Uuid,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -41,4 +41,5 @@ pub struct CarUpdate {
     pub description: Option<String>,
     pub power: Option<i32>,
     pub image_url: Option<String>,
+    pub last_seen: OffsetDateTime,
 }
