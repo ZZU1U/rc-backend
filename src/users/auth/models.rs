@@ -1,22 +1,21 @@
-use serde::{Serialize, Deserialize};
-use jsonwebtoken::{decode, Validation};
+use crate::cars::models::Car;
+use crate::users::auth::vars::{EXPIRING, KEYS};
+use crate::users::models::User;
 use axum::{
-    extract::FromRequestParts,
-    http::{request::Parts, StatusCode},
-    response::{IntoResponse, Response},
     Json, RequestPartsExt,
+    extract::FromRequestParts,
+    http::{StatusCode, request::Parts},
+    response::{IntoResponse, Response},
 };
 use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
     TypedHeader,
+    headers::{Authorization, authorization::Bearer},
 };
-use serde_json::json;
 use chrono::Utc;
+use jsonwebtoken::{Validation, decode};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use uuid::Uuid;
-use crate::users::models::User;
-use crate::cars::models::Car;
-use crate::users::auth::vars::{KEYS, EXPIRING};
-
 
 #[derive(Debug)]
 pub enum AuthError {
@@ -33,7 +32,7 @@ pub enum TokenType {
     #[serde(rename = "User")]
     User,
     #[serde(rename = "Service")]
-    Service
+    Service,
 }
 
 impl IntoResponse for AuthError {
@@ -58,12 +57,13 @@ pub struct Claims {
     pub email: Option<String>,
     pub exp: i64,
     pub is_super: Option<bool>,
-    pub iat: i64
+    pub iat: i64,
 }
 
 impl Claims {
     pub fn new<T>(args: T) -> Claims
-        where T: Into<Claims>
+    where
+        T: Into<Claims>,
     {
         args.into()
     }
@@ -97,7 +97,7 @@ impl From<&User> for Claims {
             email: Some(user.email.clone()),
             exp: time + EXPIRING,
             iat: time,
-            is_super: Some(user.is_super)
+            is_super: Some(user.is_super),
         }
     }
 }
@@ -111,7 +111,7 @@ impl From<&Car> for Claims {
             exp: time + EXPIRING,
             email: Option::None,
             iat: time,
-            is_super: Option::None
+            is_super: Option::None,
         }
     }
 }

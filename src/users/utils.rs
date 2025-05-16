@@ -1,7 +1,6 @@
+use super::passwords::hash_password;
 use crate::app_state::AppState;
 use crate::users::models::User;
-use super::passwords::hash_password;
-use uuid::Uuid;
 use std::env;
 
 pub async fn check_default_admin(state: AppState) {
@@ -16,20 +15,21 @@ pub async fn check_default_admin(state: AppState) {
         "#,
         admin_email
     )
-        .fetch_one(&state.pool).await;
+    .fetch_one(&state.pool)
+    .await;
 
     match existing_admin {
         Ok(admin) => {
             println!("Existing admin {:?}", admin);
             return;
-        },
-        Err(err) => {
+        }
+        Err(_) => {
             println!("No admin or something went wrong");
         }
     };
 
     let admin_hash = hash_password(admin_pwd).await.unwrap();
-    
+
     let admin = sqlx::query_as!(
         User,
         r#"
@@ -37,9 +37,12 @@ pub async fn check_default_admin(state: AppState) {
         VALUES ($1, $2, $3, true, true)
         RETURNING *
         "#,
-        uuid::uuid!("019688b5-075d-73d1-99fe-1708ac57bdd8"), admin_email, admin_hash
+        uuid::uuid!("019688b5-075d-73d1-99fe-1708ac57bdd8"),
+        admin_email,
+        admin_hash
     )
-        .fetch_one(&state.pool).await;
+    .fetch_one(&state.pool)
+    .await;
 
     println!("New default admin is {:?}", admin);
 }
