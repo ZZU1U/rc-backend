@@ -41,5 +41,6 @@ pub struct CarUpdate {
     pub description: Option<String>,
     pub power: Option<i32>,
     pub image_url: Option<String>,
+    #[serde(with = "time::serde::rfc3339")]
     pub last_seen: OffsetDateTime,
 }
